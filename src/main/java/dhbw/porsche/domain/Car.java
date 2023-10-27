@@ -1,5 +1,7 @@
 package dhbw.porsche.domain;
 
+import dhbw.porsche.business.IStreetService;
+import dhbw.porsche.common.Point2D;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -42,6 +44,15 @@ public class Car implements IVehicle {
     private double relPosition;
 
     /**
+     * The street repository and service.
+     */
+    private IStreetService streetService;
+
+    public Car(IStreetService streetService) {
+        this.streetService = streetService;
+    }
+
+    /**
      * Updates the velocity of the vehicle based on the controller's instruction.
      */
     @Override
@@ -54,6 +65,18 @@ public class Car implements IVehicle {
      */
     @Override
     public void move() {
+        Street street = streetService.getStreetById(streetIdx);
 
+        relPosition += velocity / street.getLength();
+    }
+
+    /**
+     * Returns the car's current velocity.
+     *
+     * @param streetIdx The index of the current street.
+     */
+    @Override
+    public void setStreetIdx(int streetIdx) {
+        this.streetIdx = streetIdx;
     }
 }

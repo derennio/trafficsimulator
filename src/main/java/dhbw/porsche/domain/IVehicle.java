@@ -10,4 +10,10 @@ public interface IVehicle {
      * Moves the vehicle based on its velocity.
      */
     void move();
+
+    /**
+     * Returns the car's current velocity.
+     * @param streetIdx The index of the current street.
+     */
+    void setStreetIdx(int streetIdx);
 }

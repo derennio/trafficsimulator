@@ -51,7 +51,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>dhbw.porsche.Simulator</mainClass>
+                            <mainClass>dhbw.porsche.presentation.gui.Gui</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

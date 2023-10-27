@@ -22,4 +22,5 @@ public interface IStreetService {
      * @return The street with the given id.
      */
     Street getStreetById(int id);
+    int getStreetAmount();
 }

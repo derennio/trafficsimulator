@@ -52,4 +52,9 @@ public class StreetService implements IStreetService {
     public Street getStreetById(int id) {
         return this.streets[id];
     }
+
+	@Override
+	public int getStreetAmount() {
+        return this.streets.length;
+	}
 }

@@ -41,4 +41,15 @@ public class StreetService implements IStreetService {
     public void removeVehicle(IVehicle vehicle) {
         this.vehicles.remove(vehicle);
     }
+
+    /**
+     * Returns the street with the given id.
+     *
+     * @param id The id of the street.
+     * @return The street with the given id.
+     */
+    @Override
+    public Street getStreetById(int id) {
+        return this.streets[id];
+    }
 }

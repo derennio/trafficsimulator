@@ -10,4 +10,8 @@ public record Street (float vMax, Point2D start, Point2D end) {
     public float getLength() {
         return Point2D.dist(start, end);
     }
+
+    public boolean isInverted() {
+        return isVertical() ? (start.getY() > end.getY()) :(start.getX() > end.getX());
+    }
 }

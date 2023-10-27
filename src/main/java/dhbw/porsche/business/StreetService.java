@@ -1,6 +1,7 @@
 package dhbw.porsche.business;
 
 import dhbw.porsche.common.Point2D;
+import dhbw.porsche.domain.Car;
 import dhbw.porsche.domain.IVehicle;
 import dhbw.porsche.domain.Street;
 import lombok.Getter;
@@ -19,7 +20,11 @@ public class StreetService implements IStreetService {
                 new Street(55.6f, new Point2D(100, 100), new Point2D(200, 100)),
                 new Street(36.1f, new Point2D(200, 100), new Point2D(200, 0))
         };
-        this.vehicles = List.of();
+        this.vehicles = List.of(
+            new Car(this, 2, 2, 2, 40),
+            new Car(this, 2, 2, 2, 40),
+            new Car(this, 2, 2, 2, 40)
+        );
     }
 
     /**

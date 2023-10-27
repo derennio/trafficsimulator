@@ -16,4 +16,7 @@ public interface IVehicle {
      * @param streetIdx The index of the current street.
      */
     void setStreetIdx(int streetIdx);
+    int getStreetIdx();
+    int getLength();
+    double getRelPosition();
 }

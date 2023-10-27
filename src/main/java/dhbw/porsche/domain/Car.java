@@ -7,7 +7,12 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class Car implements IVehicle {
+public class Car implements IVehicle {    
+    /**
+    * The street repository and service.
+    */
+    private final IStreetService streetService;
+    
     /**
      *  the car's current velocity.
      */
@@ -16,22 +21,22 @@ public class Car implements IVehicle {
     /**
      * The car's maximum positive acceleration.
      */
-    private float maxAccel;
+    private final float maxAccel;
 
     /**
      * The car's maximum brake force.
      */
-    private float maxBrake;
+    private final float maxBrake;
 
     /**
      * The car's maximum velocity.
      */
-    private float maxVelocity;
+    private final float maxVelocity;
 
     /**
      * The car's length.
      */
-    private float length;
+    private final int length;
 
     /**
      * Index of the current street.
@@ -43,14 +48,6 @@ public class Car implements IVehicle {
      */
     private double relPosition;
 
-    /**
-     * The street repository and service.
-     */
-    private IStreetService streetService;
-
-    public Car(IStreetService streetService) {
-        this.streetService = streetService;
-    }
 
     /**
      * Updates the velocity of the vehicle based on the controller's instruction.

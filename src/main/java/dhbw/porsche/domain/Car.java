@@ -44,7 +44,7 @@ public class Car implements IVehicle {
     /**
      * Index of the current street.
      */
-    private int streetIdx;
+    private int streetIdx = 0;
 
     /**
      * position relative to street length (0.0 - 1.0).
@@ -66,10 +66,29 @@ public class Car implements IVehicle {
     @Override
     public void move(float deltaT) {
         Street street = streetService.getStreetById(streetIdx);
-        this.velocity = 5f;
+        this.velocity = street.vMax();
 
         relPosition += (velocity * deltaT) / street.getLength();
-        System.out.println(relPosition);
+
+        if (relPosition >= 1.0d) {
+            relPosition = 0.0d;
+            Point2D end = street.end();
+
+            this.streetService.getStreets()
+                    .stream()
+                    .filter(
+                            s -> s.start().getX() == end.getX() && s.start().getY() == end.getY())
+                    .findFirst()
+                    .ifPresentOrElse(
+                            s -> this.streetIdx = this.streetService.getStreets().indexOf(s),
+                            () -> {
+                                this.streetService.removeVehicle(this);
+                                for (IVehicle v : this.streetService.getVehicles()) {
+                                    System.out.println(v.getRelPosition());
+                                }
+                                System.out.println("\n");
+                            });
+        }
     }
 
     /**

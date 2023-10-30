@@ -3,6 +3,8 @@ package dhbw.porsche.business;
 import dhbw.porsche.domain.IVehicle;
 import dhbw.porsche.domain.Street;
 
+import java.util.List;
+
 public interface IStreetService {
     /**
      * Adds a vehicle to the street.
@@ -23,4 +25,8 @@ public interface IStreetService {
      */
     Street getStreetById(int id);
     int getStreetAmount();
+
+    List<Street> getStreets();
+
+    List<IVehicle> getVehicles();
 }

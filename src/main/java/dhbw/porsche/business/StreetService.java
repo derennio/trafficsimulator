@@ -45,6 +45,7 @@ public class StreetService implements IStreetService {
     @Override
     public void removeVehicle(IVehicle vehicle) {
         this.vehicles.remove(vehicle);
+        vehicle = null;
     }
 
     /**
@@ -62,4 +63,14 @@ public class StreetService implements IStreetService {
 	public int getStreetAmount() {
         return this.streets.length;
 	}
+
+    @Override
+    public List<Street> getStreets() {
+        return List.of(this.streets);
+    }
+
+    @Override
+    public List<IVehicle> getVehicles() {
+        return this.vehicles;
+    }
 }

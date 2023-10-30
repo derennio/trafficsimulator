@@ -78,21 +78,26 @@ public class MainWindow {
         }
 
         void drawVehicle(Graphics g, IVehicle v) {
+            System.out.println(v.getRelPosition());
             Street s = sim.streetService.getStreetById(v.getStreetIdx() +3);
 
             g.setColor(Color.RED);
             int inverted = s.isInverted() ? -1 : 1;
             if (s.isVertical()) {
                 Point2D pos = new Point2D(s.start().getX(), (float)(s.start().getY() + v.getRelPosition() * s.getLength() * inverted));
-                g.drawRect((int)pos.getX()-10 + xOffset, (int)pos.getY() - v.getLength() / 2 + yOffset, 20, v.getLength());
+                drawRect(g, pos.getX()-10, pos.getY() - v.getLength() / 2, 20, v.getLength());
             } else {
                 Point2D pos = new Point2D((float)(s.start().getX() + v.getRelPosition() * s.getLength() * inverted), (float)(s.start().getY()));
-                g.drawRect((int)pos.getX() - v.getLength()/ 2 + xOffset, (int)pos.getY()-10 + yOffset, v.getLength(), 20);
+                drawRect(g, pos.getX() - v.getLength()/ 2, pos.getY()-10 , v.getLength(), 20);
             }
         }
 
         void drawLine(Graphics g, float startX, float startY, float endX, float endY) {
             g.drawLine((int)((startX + xOffset) * scale), (int)((startY + yOffset) * scale), (int)((endX + xOffset) * scale), (int)((endY + yOffset) * scale));
+        }
+
+        void drawRect(Graphics g, float x, float y, float width, float height) {
+            g.drawRect((int)((x + xOffset) * scale), (int)((y + yOffset) * scale), (int)(width * scale), (int)(height * scale));
         }
     }
 }

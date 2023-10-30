@@ -41,8 +41,9 @@ public class MainWindow {
     }
 
     public class TestPane extends JPanel {
-        private int xOffset = 100;
-        private int yOffset = 100;
+        private int xOffset = 1000;
+        private int yOffset = 1000;
+        private double scale = .1;
 
         @Override
         public Dimension getPreferredSize() {
@@ -63,16 +64,16 @@ public class MainWindow {
         }
 
         void drawStreet(Graphics g, Street s) {
-            g.drawLine((int)s.start().getX() + xOffset,(int)s.start().getY() + yOffset, (int)s.end().getX() + xOffset, (int)s.end().getY() + yOffset);
+            drawLine(g, s.start().getX(), s.start().getY(), s.end().getX(), s.end().getY());
 
             if (s.isVertical()) {
                 float middleY = (s.start().getY() + s.end().getY()) / 2;
-                g.drawLine((int)s.start().getX() + xOffset, (int)middleY + yOffset, (int)s.start().getX() + 10 + xOffset, (int)middleY + 10 * (s.start().getY() > s.end().getY() ? 1 : -1) + yOffset);
-                g.drawLine((int)s.start().getX() + xOffset, (int)middleY + yOffset, (int)s.start().getX() - 10 + xOffset, (int)middleY + 10 * (s.start().getY() > s.end().getY() ? 1 : -1) + yOffset);
+                drawLine(g, s.start().getX(), middleY, s.start().getX() + 10, middleY + 10 * (s.start().getY() > s.end().getY() ? 1 : -1));
+                drawLine(g, s.start().getX(), middleY, s.start().getX() - 10, middleY + 10 * (s.start().getY() > s.end().getY() ? 1 : -1));
             } else {
                 float middleX = (s.start().getX() + s.end().getX()) / 2;
-                g.drawLine((int)middleX + xOffset, (int)s.start().getY() + yOffset, (int)middleX + 10 * (s.start().getX() > s.end().getX() ? 1 : -1) + xOffset, (int)s.start().getY() + 10 + yOffset);
-                g.drawLine((int)middleX + xOffset, (int)s.start().getY() + yOffset, (int)middleX + 10 * (s.start().getX() > s.end().getX() ? 1 : -1) + xOffset, (int)s.start().getY() - 10 + yOffset);
+                drawLine(g, middleX, s.start().getY(), middleX + 10 * (s.start().getX() > s.end().getX() ? 1 : -1), s.start().getY() + 10);
+                drawLine(g, middleX, s.start().getY(), middleX + 10 * (s.start().getX() > s.end().getX() ? 1 : -1), s.start().getY() - 10);
             }
         }
 
@@ -88,6 +89,10 @@ public class MainWindow {
                 Point2D pos = new Point2D((float)(s.start().getX() + v.getRelPosition() * s.getLength() * inverted), (float)(s.start().getY()));
                 g.drawRect((int)pos.getX() - v.getLength()/ 2 + xOffset, (int)pos.getY()-10 + yOffset, v.getLength(), 20);
             }
+        }
+
+        void drawLine(Graphics g, float startX, float startY, float endX, float endY) {
+            g.drawLine((int)((startX + xOffset) * scale), (int)((startY + yOffset) * scale), (int)((endX + xOffset) * scale), (int)((endY + yOffset) * scale));
         }
     }
 }

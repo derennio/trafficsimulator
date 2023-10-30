@@ -61,10 +61,10 @@ public class Car implements IVehicle {
      * Moves the vehicle based on its velocity.
      */
     @Override
-    public void move() {
+    public void move(float deltaT) {
         Street street = streetService.getStreetById(streetIdx);
 
-        relPosition += velocity / street.getLength();
+        relPosition += velocity * deltaT / street.getLength();
     }
 
     /**

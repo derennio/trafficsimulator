@@ -4,7 +4,7 @@ public interface IVehicle {
     /**
      * Updates the velocity of the vehicle based on the controller's instruction.
      */
-    void updateVelocity();
+    void updateVelocity(float deltaT);
 
     /**
      * Moves the vehicle based on its velocity.

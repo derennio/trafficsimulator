@@ -12,6 +12,7 @@ public class Simulator {
 
     public Simulator() {
         streetService = new StreetService();
+        this.lastTick = System.currentTimeMillis();
 
         ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
         service.scheduleAtFixedRate(this::tick, 0, 10, TimeUnit.MILLISECONDS);
@@ -20,9 +21,7 @@ public class Simulator {
     public void tick() {
         long now = System.currentTimeMillis();
 
-        streetService.getVehicles().forEach(vehicle -> {
-            vehicle.move((now - this.lastTick) * 1000);
-        });
+        streetService.getVehicles().forEach(vehicle -> vehicle.move((float) (now - this.lastTick) / 1000));
 
         this.lastTick = System.currentTimeMillis();
     }

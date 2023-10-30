@@ -6,6 +6,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
@@ -36,6 +40,10 @@ public class MainWindow {
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
+
+
+                ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
+                service.scheduleAtFixedRate(frame::repaint, 0, 50, TimeUnit.MILLISECONDS);
             }
         });
     }

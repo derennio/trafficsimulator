@@ -15,10 +15,10 @@ public class StreetService implements IStreetService {
 
     public StreetService() {
         this.streets = new Street[] {
-                new Street(13.8f, new Point2D(0, 0), new Point2D(0, 100)),
-                new Street(36.1f, new Point2D(0, 100), new Point2D(100, 100)),
-                new Street(55.6f, new Point2D(100, 100), new Point2D(200, 100)),
-                new Street(36.1f, new Point2D(200, 100), new Point2D(200, 0))
+                new Street(13.8f, new Point2D(0, 0), new Point2D(0, 1000)),
+                new Street(36.1f, new Point2D(0, 1000), new Point2D(1000, 1000)),
+                new Street(55.6f, new Point2D(1000, 1000), new Point2D(2000, 1000)),
+                new Street(36.1f, new Point2D(2000, 1000), new Point2D(2000, 0))
         };
         this.vehicles = List.of(
             new Car(this, 2, 2, 2, 40),

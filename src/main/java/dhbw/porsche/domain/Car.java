@@ -57,7 +57,7 @@ public class Car implements IVehicle {
      */
     @Override
     public void updateVelocity(float deltaT) {
-        controller.calculate(0.0f, deltaT);
+        var result = controller.calculate(0, deltaT);
     }
 
     /**
@@ -66,7 +66,7 @@ public class Car implements IVehicle {
     @Override
     public void move(float deltaT) {
         Street street = streetService.getStreetById(streetIdx);
-        this.velocity = street.vMax();
+        this.velocity = street.vMax() * 10;
 
         relPosition += (velocity * deltaT) / street.getLength();
 
@@ -81,13 +81,7 @@ public class Car implements IVehicle {
                     .findFirst()
                     .ifPresentOrElse(
                             s -> this.streetIdx = this.streetService.getStreets().indexOf(s),
-                            () -> {
-                                this.streetService.removeVehicle(this);
-                                for (IVehicle v : this.streetService.getVehicles()) {
-                                    System.out.println(v.getRelPosition());
-                                }
-                                System.out.println("\n");
-                            });
+                            () -> this.streetService.removeVehicle(this));
         }
     }
 

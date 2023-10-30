@@ -86,7 +86,6 @@ public class MainWindow {
         }
 
         void drawVehicle(Graphics g, IVehicle v) {
-            System.out.println(v.getRelPosition());
             Street s = sim.streetService.getStreetById(v.getStreetIdx());
 
             g.setColor(Color.RED);

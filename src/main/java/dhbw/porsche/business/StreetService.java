@@ -6,6 +6,7 @@ import dhbw.porsche.domain.IVehicle;
 import dhbw.porsche.domain.Street;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -20,11 +21,8 @@ public class StreetService implements IStreetService {
                 new Street(55.6f, new Point2D(1000, 1000), new Point2D(2000, 1000)),
                 new Street(36.1f, new Point2D(2000, 1000), new Point2D(2000, 0))
         };
-        this.vehicles = List.of(
-            new Car(this, 2, 2, 2, 40),
-            new Car(this, 2, 2, 2, 40),
-            new Car(this, 2, 2, 2, 40)
-        );
+        this.vehicles = new ArrayList<>();
+        this.vehicles.add(new Car(this, 2, 2, 2, 40));
     }
 
     /**
@@ -45,7 +43,6 @@ public class StreetService implements IStreetService {
     @Override
     public void removeVehicle(IVehicle vehicle) {
         this.vehicles.remove(vehicle);
-        vehicle = null;
     }
 
     /**

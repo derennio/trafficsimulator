@@ -43,7 +43,13 @@ public class MainWindow {
 
 
                 ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
-                service.scheduleAtFixedRate(frame::repaint, 0, 50, TimeUnit.MILLISECONDS);
+                service.scheduleAtFixedRate(() -> {
+                    try {
+                        frame.repaint();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }, 0, 50, TimeUnit.MILLISECONDS);
             }
         });
     }

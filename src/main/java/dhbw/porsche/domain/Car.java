@@ -3,8 +3,11 @@ package dhbw.porsche.domain;
 import dhbw.porsche.business.IStreetService;
 import dhbw.porsche.business.controller.PIController;
 import dhbw.porsche.common.Point2D;
+import dhbw.porsche.common.Tuple;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
 
 @Getter
 @RequiredArgsConstructor
@@ -51,13 +54,31 @@ public class Car implements IVehicle {
      */
     private double relPosition = 0.0d;
 
+    private final int[] seed;
+
+    private int seedIdx;
+
+    public Car(IStreetService streetService, float maxAccel, float maxBrake, float maxVelocity, int length, int[] seed, double relAhead, int streetIdx) {
+        this.streetService = streetService;
+        this.maxAccel = maxAccel;
+        this.maxBrake = maxBrake;
+        this.maxVelocity = maxVelocity;
+        this.length = length;
+        this.seed = seed;
+        this.seedIdx = 0;
+        this.controller = new PIController(0.1f, 0.1f);
+        this.relPosition = relAhead;
+        this.streetIdx = streetIdx;
+    }
+
 
     /**
      * Updates the velocity of the vehicle based on the controller's instruction.
      */
     @Override
     public void updateVelocity(float deltaT) {
-        var result = controller.calculate(0, deltaT);
+        float desiredDist = this.velocity * 3.6f / 2 + this.getLength();
+        var ahead = lookAhead(desiredDist);
     }
 
     /**
@@ -65,8 +86,10 @@ public class Car implements IVehicle {
      */
     @Override
     public void move(float deltaT) {
+        this.updateVelocity(deltaT);
+
         Street street = streetService.getStreetById(streetIdx);
-        this.velocity = street.vMax() * 10;
+        this.velocity = street.vMax();
 
         relPosition += (velocity * deltaT) / street.getLength();
 
@@ -74,14 +97,18 @@ public class Car implements IVehicle {
             relPosition = 0.0d;
             Point2D end = street.end();
 
-            this.streetService.getStreets()
+            var options = this.streetService.getStreets()
                     .stream()
                     .filter(
                             s -> s.start().getX() == end.getX() && s.start().getY() == end.getY())
-                    .findFirst()
-                    .ifPresentOrElse(
-                            s -> this.streetIdx = this.streetService.getStreets().indexOf(s),
-                            () -> this.streetService.removeVehicle(this));
+                    .toArray();
+
+            if (options.length == 0) {
+                this.streetService.removeVehicle(this);
+                return;
+            }
+
+            this.streetIdx = this.streetService.getStreets().indexOf(options[this.seed[this.seedIdx++] % options.length]);
         }
     }
 
@@ -93,5 +120,49 @@ public class Car implements IVehicle {
     @Override
     public void setStreetIdx(int streetIdx) {
         this.streetIdx = streetIdx;
+    }
+
+    private Optional<Tuple<IVehicle, Float>> lookAhead(float targetDist) {
+        return lookAhead(this.streetIdx, 0, 0, targetDist);
+    }
+
+    private Optional<Tuple<IVehicle, Float>> lookAhead(int streetIdx, float distPassed, int nthStreet, float targetDist) {
+        var searchTarget = this.streetService.getStreetById(this.streetIdx);
+
+        var vehiclesOnStreet = this.streetService.getVehicles().stream().filter(v -> v.getStreetIdx() == streetIdx).toArray(IVehicle[]::new);
+        for (IVehicle v :
+             vehiclesOnStreet) {
+            if (nthStreet == 0) {
+                if (this.getRelPosition() < v.getRelPosition()) {
+                    double streetDist = (v.getRelPosition() - this.getRelPosition()) * searchTarget.getLength();
+                    if (streetDist < targetDist) {
+                        return Optional.of(new Tuple<>(v, (float)streetDist));
+                    }
+                }
+            } else {
+                double streetDist = v.getRelPosition() * searchTarget.getLength() + distPassed;
+                if (streetDist < targetDist) {
+                    return Optional.of(new Tuple<>(v, (float)streetDist));
+                }
+            }
+        }
+
+        var options = this.streetService.getStreets().stream().filter(s -> s.start().getX() == searchTarget.end().getX() && s.start().getY() == searchTarget.end().getY()).toArray(Street[]::new);
+
+        if (options.length == 0) {
+            return Optional.empty();
+        }
+
+        var nextIdx = this.streetService.getStreets().indexOf(options[this.seed[(this.seedIdx + nthStreet + 1)] % options.length]);
+        float _distPassed = distPassed + searchTarget.getLength();
+        if (nthStreet == 0) {
+            _distPassed = (float)((1 - this.relPosition) * searchTarget.getLength());
+        }
+
+        if (_distPassed >= targetDist) {
+            return Optional.empty();
+        }
+
+        return lookAhead(nextIdx, _distPassed, nthStreet + 1, targetDist);
     }
 }

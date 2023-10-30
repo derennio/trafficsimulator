@@ -15,7 +15,13 @@ public class Simulator {
         this.lastTick = System.currentTimeMillis();
 
         ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
-        service.scheduleAtFixedRate(this::tick, 0, 10, TimeUnit.MILLISECONDS);
+        service.scheduleAtFixedRate(() -> {
+            try {
+                this.tick();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }, 0, 10, TimeUnit.MILLISECONDS);
     }
 
     public void tick() {

@@ -18,11 +18,13 @@ public class StreetService implements IStreetService {
         this.streets = new Street[] {
                 new Street(13.8f, new Point2D(0, 0), new Point2D(0, 1000)),
                 new Street(36.1f, new Point2D(0, 1000), new Point2D(1000, 1000)),
+                new Street(55.6f, new Point2D(1000, 1000), new Point2D(1000, 2000)),
                 new Street(55.6f, new Point2D(1000, 1000), new Point2D(2000, 1000)),
                 new Street(36.1f, new Point2D(2000, 1000), new Point2D(2000, 0))
         };
         this.vehicles = new ArrayList<>();
-        this.vehicles.add(new Car(this, 2, 2, 2, 40));
+        this.vehicles.add(new Car(this, 2, 2, 2, 40, generateSeed(), .8, 0));
+        this.vehicles.add(new Car(this, 2, 2, 2, 40, generateSeed(), .1, 1));
     }
 
     /**
@@ -69,5 +71,13 @@ public class StreetService implements IStreetService {
     @Override
     public List<IVehicle> getVehicles() {
         return this.vehicles;
+    }
+
+    private int[] generateSeed() {
+        int[] seed = new int[10];
+        for (int i = 0; i < seed.length; i++) {
+            seed[i] = (int)(Math.random() * 10);
+        }
+        return seed;
     }
 }

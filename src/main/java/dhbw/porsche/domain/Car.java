@@ -4,20 +4,33 @@ import dhbw.porsche.business.IStreetService;
 import dhbw.porsche.business.controller.PIController;
 import dhbw.porsche.common.Point2D;
 import dhbw.porsche.common.Tuple;
+import dhbw.porsche.file.FileService;
+import dhbw.porsche.file.IFileService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Getter
 @RequiredArgsConstructor
-public class Car implements IVehicle {    
+public class Car implements IVehicle {
+    /**
+     * The car's id.
+     */
+    private UUID id = UUID.randomUUID();
+
     /**
     * The street repository and service.
     */
     private final IStreetService streetService;
 
-    private PIController controller;
+    /**
+     * The file service.
+     */
+    private final IFileService fileService;
+
+    private PIController controller = new PIController(0.1f, 0.1f);
     
     /**
      *  the car's current velocity.
@@ -58,8 +71,9 @@ public class Car implements IVehicle {
 
     private int seedIdx;
 
-    public Car(IStreetService streetService, float maxAccel, float maxBrake, float maxVelocity, int length, int[] seed, double relAhead, int streetIdx) {
+    public Car(IStreetService streetService, IFileService fileService, float maxAccel, float maxBrake, float maxVelocity, int length, int[] seed, double relAhead, int streetIdx) {
         this.streetService = streetService;
+        this.fileService = fileService;
         this.maxAccel = maxAccel;
         this.maxBrake = maxBrake;
         this.maxVelocity = maxVelocity;
@@ -79,6 +93,25 @@ public class Car implements IVehicle {
     public void updateVelocity(float deltaT) {
         float desiredDist = this.velocity * 3.6f / 2 + this.getLength();
         var ahead = lookAhead(desiredDist);
+        float error = 0, control = 0, dist = -1;
+
+        if (ahead.isPresent()) {
+            var v = ahead.get().t();
+            dist = ahead.get().v();
+            error = (float)(dist - desiredDist);
+            control = this.controller.calculate(error, deltaT);
+            if (control > 0) {
+                this.velocity += Math.min(control, this.maxAccel * deltaT);
+                //this.velocity = Math.min(this.velocity + control, Math.min(this.streetService.getStreetById(streetIdx).vMax(), this.maxVelocity));
+            } else {
+                this.velocity -= Math.min(-control, this.maxBrake * deltaT);
+            }
+        } else {
+            this.velocity = Math.min(this.velocity + this.maxAccel * deltaT, Math.min(this.streetService.getStreetById(streetIdx).vMax(), this.maxVelocity));
+        }
+
+        DataPoint dp = new DataPoint(this.getId(), System.currentTimeMillis(), this.velocity, error, control, this.streetService.getStreetById(streetIdx).vMax(), (float)this.relPosition, dist, this.streetIdx);
+        this.fileService.appendData(dp);
     }
 
     /**
@@ -89,8 +122,6 @@ public class Car implements IVehicle {
         this.updateVelocity(deltaT);
 
         Street street = streetService.getStreetById(streetIdx);
-        this.velocity = street.vMax();
-
         relPosition += (velocity * deltaT) / street.getLength();
 
         if (relPosition >= 1.0d) {

@@ -31,6 +31,7 @@ public class FileService implements IFileService {
         FileWriter fw = new FileWriter(name, true);
         BufferedWriter bw = new BufferedWriter(fw);
 
+        bw.write("id,time,velocity,error,control,vMax,relPosition,distance,streetIdx\n");
         for (DataPoint dataPoint :
              this.dataPoints) {
             bw.write(String.format("%s,%d,%f,%f,%f,%f,%f,%f,%d",

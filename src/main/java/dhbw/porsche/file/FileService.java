@@ -17,7 +17,7 @@ public class FileService implements IFileService {
      * @param dataPoint The data point to append.
      */
     @Override
-    public void appendData(DataPoint dataPoint) {
+    public synchronized void appendData(DataPoint dataPoint) {
         this.dataPoints.add(dataPoint);
     }
 
@@ -27,7 +27,7 @@ public class FileService implements IFileService {
      * @param name The name of the file.
      */
     @Override
-    public void saveData(String name) throws IOException {
+    public synchronized void saveData(String name) throws IOException {
         FileWriter fw = new FileWriter(name, true);
         BufferedWriter bw = new BufferedWriter(fw);
 

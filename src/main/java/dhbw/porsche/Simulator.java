@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Simulator {
     public IStreetService streetService;
-    private IFileService fileService;
+    public IFileService fileService;
     private long lastTick;
 
     public Simulator() {

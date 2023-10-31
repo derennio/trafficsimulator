@@ -8,8 +8,8 @@ import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -17,19 +17,29 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import dhbw.porsche.Simulator;
 import dhbw.porsche.common.Point2D;
 import dhbw.porsche.domain.IVehicle;
 import dhbw.porsche.domain.Street;
+import dhbw.porsche.file.IFileService;
 
-public class MainWindow {
+public class MainWindow implements ActionListener {
     private Simulator sim;
     private BufferedImage image;
+    private JMenuItem saveLogButton;
+    private JFrame frame;
 
     public MainWindow(Simulator sim) {
         this.sim = sim;
@@ -46,11 +56,13 @@ public class MainWindow {
                     e.printStackTrace();
                 }
                 
-                JFrame frame = new JFrame("Traffic simulator gui");
+                frame = new JFrame("Traffic simulator gui");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setLayout(new BorderLayout());
-                frame.add(new TestPane());
+                frame.setJMenuBar(addMenuBar(frame));
+                frame.add(new TestPane(frame));
                 frame.pack();
+
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
 
@@ -67,14 +79,35 @@ public class MainWindow {
         });
     }
 
+    JMenuBar addMenuBar(JFrame frame) {
+        JMenuBar menuBar = new JMenuBar();
+
+        //Build the first menu.
+        JMenu menu = new JMenu("Log");
+        menu.getAccessibleContext().setAccessibleDescription(
+                "The only menu in this program that has menu items");
+        menuBar.add(menu);
+
+        //a group of JMenuItems
+        saveLogButton = new JMenuItem("Save log to file");
+        saveLogButton.addActionListener(this);
+        menu.add(saveLogButton);
+        return menuBar;
+    }
+
     public class TestPane extends JPanel {
         private int xOffset = 1000;
         private int yOffset = 1000;
         private double scale = .2;
+        private JFrame parentFrame;
+
+        TestPane(JFrame pf) {
+            parentFrame = pf;
+        }
 
         @Override
         public Dimension getPreferredSize() {
-            return new Dimension(200, 200);
+            return new Dimension(600, 600);
         }
 
         @Override
@@ -131,7 +164,7 @@ public class MainWindow {
 
             // Set the rotation transformation
             AffineTransform transform = new AffineTransform();
-            transform.translate((x + xOffset) * scale, (y + yOffset) * scale);
+            transform.translate((x + xOffset) * scale, (y + yOffset) * scale + parentFrame.getJMenuBar().getHeight());
             transform.rotate((angle));
             transform.scale(.04, .04);
             transform.translate(-image.getWidth() / 2, -image.getHeight() / 2);
@@ -156,6 +189,31 @@ public class MainWindow {
 
         void drawImage(Graphics g, BufferedImage img, float x, float y) {
             g.drawImage(img, (int)((x + xOffset) * scale), (int)((y + yOffset) * scale), null);
+        }
+    }
+
+    void saveLog() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Specify a file to save");   
+        
+JFrame parentFrame = new JFrame();
+        int userSelection = fileChooser.showSaveDialog(parentFrame);
+        
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            System.out.println("Save as file: " + fileToSave.getAbsolutePath());
+            try {
+                sim.fileService.saveData(fileToSave.getAbsolutePath());   
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        if (ae.getSource() == this.saveLogButton) {
+            saveLog();
         }
     }
 }

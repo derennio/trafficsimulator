@@ -1,17 +1,23 @@
 package dhbw.porsche;
 
+import dhbw.porsche.business.IStreetService;
 import dhbw.porsche.business.StreetService;
+import dhbw.porsche.file.FileService;
+import dhbw.porsche.file.IFileService;
 
+import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Simulator {
-    public StreetService streetService;
+    public IStreetService streetService;
+    private IFileService fileService;
     private long lastTick;
 
     public Simulator() {
-        streetService = new StreetService();
+        this.fileService = new FileService();
+        this.streetService = new StreetService(this.fileService);
         this.lastTick = System.currentTimeMillis();
 
         ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
@@ -22,6 +28,14 @@ public class Simulator {
                 ex.printStackTrace();
             }
         }, 0, 10, TimeUnit.MILLISECONDS);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                fileService.saveData("data.csv");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Shutdown-thread"));
     }
 
     public void tick() {

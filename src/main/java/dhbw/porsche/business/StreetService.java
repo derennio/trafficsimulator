@@ -4,6 +4,7 @@ import dhbw.porsche.common.Point2D;
 import dhbw.porsche.domain.Car;
 import dhbw.porsche.domain.IVehicle;
 import dhbw.porsche.domain.Street;
+import dhbw.porsche.file.IFileService;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -14,17 +15,17 @@ public class StreetService implements IStreetService {
     private final Street[] streets;
     private List<IVehicle> vehicles;
 
-    public StreetService() {
+    public StreetService(IFileService fileService) {
         this.streets = new Street[] {
                 new Street(13.8f, new Point2D(0, 0), new Point2D(0, 1000)),
                 new Street(36.1f, new Point2D(0, 1000), new Point2D(1000, 1000)),
-                new Street(55.6f, new Point2D(1000, 1000), new Point2D(1000, 2000)),
-                new Street(55.6f, new Point2D(1000, 1000), new Point2D(2000, 1000)),
-                new Street(36.1f, new Point2D(2000, 1000), new Point2D(2000, 0))
+                new Street(13f, new Point2D(1000, 1000), new Point2D(1000, 2000)),
+                new Street(13f, new Point2D(1000, 1000), new Point2D(2000, 1000)),
+                new Street(13f, new Point2D(2000, 1000), new Point2D(2000, 0))
         };
         this.vehicles = new ArrayList<>();
-        this.vehicles.add(new Car(this, 2, 2, 2, 40, generateSeed(), .8, 0));
-        this.vehicles.add(new Car(this, 2, 2, 2, 40, generateSeed(), .1, 1));
+        this.vehicles.add(new Car(this, fileService, .68f, 5, 100, 40, generateSeed(), 0, 1));
+        this.vehicles.add(new Car(this, fileService, 8.68f, 5, 100, 40, generateSeed(), .03, 1));
     }
 
     /**

@@ -30,7 +30,7 @@ public class Car implements IVehicle {
      */
     private final IFileService fileService;
 
-    private PIController controller = new PIController(0.1f, 0.1f);
+    private PIController controller = new PIController(0.5f, 0.1f);
     
     /**
      *  the car's current velocity.
@@ -80,7 +80,7 @@ public class Car implements IVehicle {
         this.length = length;
         this.seed = seed;
         this.seedIdx = 0;
-        this.controller = new PIController(0.1f, 0.1f);
+        this.controller = new PIController(0.5f, 0.1f);
         this.relPosition = relAhead;
         this.streetIdx = streetIdx;
     }
@@ -93,16 +93,15 @@ public class Car implements IVehicle {
     public void updateVelocity(float deltaT) {
         float desiredDist = this.velocity * 3.6f / 2 + this.getLength();
         var ahead = lookAhead(desiredDist);
-        float error = 0, control = 0, dist = -1;
+        float error = 0, control = 0;
 
         if (ahead.isPresent()) {
             var v = ahead.get().t();
-            dist = ahead.get().v();
+            var dist = ahead.get().v();
             error = (float)(dist - desiredDist);
             control = this.controller.calculate(error, deltaT);
             if (control > 0) {
                 this.velocity += Math.min(control, this.maxAccel * deltaT);
-                //this.velocity = Math.min(this.velocity + control, Math.min(this.streetService.getStreetById(streetIdx).vMax(), this.maxVelocity));
             } else {
                 this.velocity -= Math.min(-control, this.maxBrake * deltaT);
             }
@@ -110,7 +109,7 @@ public class Car implements IVehicle {
             this.velocity = Math.min(this.velocity + this.maxAccel * deltaT, Math.min(this.streetService.getStreetById(streetIdx).vMax(), this.maxVelocity));
         }
 
-        DataPoint dp = new DataPoint(this.getId(), System.currentTimeMillis(), this.velocity, error, control, this.streetService.getStreetById(streetIdx).vMax(), (float)this.relPosition, dist, this.streetIdx);
+        DataPoint dp = new DataPoint(this.getId(), System.currentTimeMillis(), this.velocity, error, control, this.streetService.getStreetById(streetIdx).vMax(), (float)this.relPosition, 187, this.streetIdx);
         this.fileService.appendData(dp);
     }
 

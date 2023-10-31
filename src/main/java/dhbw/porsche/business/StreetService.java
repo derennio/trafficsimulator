@@ -24,8 +24,8 @@ public class StreetService implements IStreetService {
                 new Street(13f, new Point2D(2000, 1000), new Point2D(2000, 0))
         };
         this.vehicles = new ArrayList<>();
-        this.vehicles.add(new Car(this, fileService, .68f, 5, 100, 40, generateSeed(), 0, 1));
-        this.vehicles.add(new Car(this, fileService, 8.68f, 5, 100, 40, generateSeed(), .03, 1));
+        this.vehicles.add(new Car(this, fileService, 8.68f, 5, 100, 63, generateSeed(), 0, 1));
+        this.vehicles.add(new Car(this, fileService, 8.68f, 5, 100, 63, generateSeed(), .03, 1));
     }
 
     /**

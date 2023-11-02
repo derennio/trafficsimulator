@@ -107,7 +107,6 @@ public class Car implements IVehicle {
         } else {
             var ahead = lookAhead(desiredDist);
             if (ahead.isPresent()) {
-                var v = ahead.get().t();
                 var dist = ahead.get().v();
                 error = (dist - desiredDist);
                 control = this.controller.calculate(error, deltaT);

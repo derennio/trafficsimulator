@@ -43,8 +43,6 @@ public class MainWindow implements ActionListener {
     private JMenuItem createStreetButton;
     private JFrame frame;
 
-    private NewCarPopup newCarPopup;
-
     public MainWindow(Simulator sim) {
         this.sim = sim;
         try {
@@ -58,9 +56,6 @@ public class MainWindow implements ActionListener {
         }
 
         frame = new JFrame("Traffic simulator gui");
-        
-        //preparation for popups
-        newCarPopup = new NewCarPopup(frame, this);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -228,10 +223,13 @@ JFrame parentFrame = new JFrame();
         if (ae.getSource() == this.saveLogButton) {
             saveLog();
         } else if (ae.getSource() == this.createCarButton) {
+
+            //preparation for popups
+            NewCarPopup newCarPopup = new NewCarPopup(frame, this);
             newCarPopup.setVisible(true);
-            System.out.println("new car");
         } else if (ae.getSource() == this.createStreetButton) {
-            System.out.println("new street");
+            NewStreetPopup newStreetPopup = new NewStreetPopup(frame, this);
+            newStreetPopup.setVisible(true);
         }
     }
 }

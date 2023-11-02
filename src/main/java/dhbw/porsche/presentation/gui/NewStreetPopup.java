@@ -12,8 +12,10 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 
 import dhbw.porsche.business.controller.PIController;
+import dhbw.porsche.common.Point2D;
 import dhbw.porsche.domain.Car;
 import dhbw.porsche.domain.IVehicle;
+import dhbw.porsche.domain.Street;
 
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -22,20 +24,19 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class NewCarPopup extends JDialog {
+public class NewStreetPopup extends JDialog {
     private JTextField maxVelField;
-    private JTextField maxAccField;
-    private JTextField maxBrakeField;
-    private JSlider relPosSlider;
+    private JTextField endXField;
+    private JTextField endYField;
     private MainWindow mw;
   
     private JOptionPane optionPane;
-    private JComboBox<Integer> streetSelector;
+    private JComboBox<String> startSelector;
   
-    private String btnString1 = "Spawn";
+    private String btnString1 = "Create";
     private String btnString2 = "Close Window";
 
-    NewCarPopup(JFrame frame, MainWindow mw) {
+    NewStreetPopup(JFrame frame, MainWindow mw) {
         super(frame);
         this.mw = mw;
     
@@ -46,24 +47,24 @@ public class NewCarPopup extends JDialog {
         String maxVelString = "Max velocity [m/s]";
         maxVelField = new JTextField(10);
         maxVelField.setText("100.0");
-        String maxAccString = "Max Acceleration [m/s^2]";
-        maxAccField = new JTextField(10);
-        maxAccField.setText("10.0");
-        String maxBrakeString = "Max brake force [m/s^2]";
-        maxBrakeField = new JTextField(10);
-        maxBrakeField.setText("5.0");
 
-        String streetSelectorText = "Select a street to start";
-        Integer[] streetChoices = new Integer[mw.getSim().streetService.getStreetAmount()];
+        String startSelectorText = "Select a street to start";
+        String[] startChoices = new String[mw.getSim().streetService.getStreetAmount()];
         for (int i = 0; i < mw.getSim().streetService.getStreetAmount(); i++) {
-            streetChoices[i] = i;
+            Street s = mw.getSim().streetService.getStreetById(i);
+            startChoices[i] = Float.toString(s.end().getX()) + " | " + Float.toString(s.end().getY());
         }
-        streetSelector = new JComboBox<Integer>(streetChoices);
+        startSelector = new JComboBox<String>(startChoices);
 
-        String relPosText = "Enter the relative Position to start: [0-1]";
-        relPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+        String endXString = "End Position X:";
+        endXField = new JTextField(10);
+        endXField.setText("1000.0");
+        
+        String endYString = "End Position Y:";
+        endYField = new JTextField(10);
+        endYField.setText("1000.0");
 
-        Object[] array = { maxVelString, maxVelField, maxAccString, maxAccField, maxBrakeString, maxBrakeField, streetSelectorText, streetSelector, relPosText, relPosSlider};
+        Object[] array = { maxVelString, maxVelField, startSelectorText, startSelector, endXString, endXField, endYString, endYField};
 
         // Create an array specifying the number of dialog buttons
         // and their text.
@@ -76,8 +77,8 @@ public class NewCarPopup extends JDialog {
             public void propertyChange(PropertyChangeEvent e) {
                 if (that.isVisible() && (e.getSource() == optionPane) && optionPane.getValue() == "Close Window") {
                     that.setVisible(false);
-                } else if (that.isVisible() && (e.getSource() == optionPane) && optionPane.getValue() == "Spawn") {
-                    createCar();
+                } else if (that.isVisible() && (e.getSource() == optionPane) && optionPane.getValue() == "Create") {
+                    createStreet();
                     that.setVisible(false);
                 }
             }
@@ -90,19 +91,17 @@ public class NewCarPopup extends JDialog {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);   
     }
 
-    void createCar() {
-        float maxAccel = 0, maxBrake = 0, maxVelocity = 0, relPos = 0;
-        int streetIndex = 0;
+    void createStreet() {
+        float maxVel = 0;
+        Point2D start = new Point2D(0, 0), end = new Point2D(0, 0);
         try {
-            streetIndex = (int)streetSelector.getSelectedItem();
-            maxAccel = Float.parseFloat(maxAccField.getText());
-            maxBrake = Float.parseFloat(maxBrakeField.getText());
-            maxVelocity = Float.parseFloat(maxVelField.getText());
-            relPos = relPosSlider.getValue() / 100.0f;
+            maxVel = Float.parseFloat(maxVelField.getText());
+            end = new Point2D(Float.parseFloat(endXField.getText()), Float.parseFloat(endYField.getText()));
+            start = mw.getSim().streetService.getStreetById(startSelector.getSelectedIndex()).end();
         } catch (Exception e) {
             System.out.println("Did not enter numbers!");
         }
-        IVehicle v = new Car(mw.getSim().streetService, mw.getSim().fileService, new PIController(0.5f, 0.1f), maxAccel, maxBrake, maxVelocity, 63).translocate(relPos, streetIndex);
-        mw.getSim().streetService.addVehicle(v);
+        Street s = new Street(maxVel, start, end);
+        mw.getSim().streetService.addStreet(s);
     }
 }

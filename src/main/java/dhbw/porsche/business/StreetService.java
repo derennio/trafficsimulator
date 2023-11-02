@@ -16,7 +16,7 @@ public class StreetService implements IStreetService {
     /**
      * The streets.
      */
-    private final Street[] streets;
+    private List<Street> streets;
 
     /**
      * The vehicles.
@@ -24,13 +24,13 @@ public class StreetService implements IStreetService {
     private List<IVehicle> vehicles;
 
     public StreetService(IFileService fileService) {
-        this.streets = new Street[] {
-                new Street(13.8f, new Point2D(0, 0), new Point2D(0, 1000)),
-                new Street(36.1f, new Point2D(0, 1000), new Point2D(1000, 1000)),
-                new Street(13f, new Point2D(1000, 1000), new Point2D(1000, 2000)),
-                new Street(13f, new Point2D(1000, 1000), new Point2D(2000, 1000)),
-                new Street(13f, new Point2D(2000, 1000), new Point2D(2000, 0))
-        };
+        this.streets = new ArrayList<>();
+        this.streets.add(new Street(13.8f, new Point2D(0, 0), new Point2D(0, 1000)));
+        this.streets.add(new Street(36.1f, new Point2D(0, 1000), new Point2D(1000, 1000)));
+        this.streets.add(new Street(13f, new Point2D(1000, 1000), new Point2D(1000, 2000)));
+        this.streets.add(new Street(13f, new Point2D(1000, 1000), new Point2D(2000, 1000)));
+        this.streets.add(new Street(13f, new Point2D(2000, 1000), new Point2D(2000, 0)));
+
         this.vehicles = new ArrayList<>();
         this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63));
         this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.03, 1));
@@ -44,6 +44,16 @@ public class StreetService implements IStreetService {
     @Override
     public void addVehicle(IVehicle vehicle) {
         this.vehicles.add(vehicle);
+    }
+
+    /**
+     * Adds a street to the simulation.
+     *
+     * @param street The street to add.
+     */
+    @Override
+    public void addStreet(Street street) {
+        this.streets.add(street);
     }
 
     /**
@@ -64,7 +74,7 @@ public class StreetService implements IStreetService {
      */
     @Override
     public Street getStreetById(int id) {
-        return this.streets[id];
+        return this.streets.get(id);
     }
 
     /**
@@ -73,7 +83,7 @@ public class StreetService implements IStreetService {
      */
 	@Override
 	public int getStreetAmount() {
-        return this.streets.length;
+        return this.streets.size();
 	}
 
     /**
@@ -82,7 +92,7 @@ public class StreetService implements IStreetService {
      */
     @Override
     public List<Street> getStreets() {
-        return List.of(this.streets);
+        return this.streets;
     }
 
     /**

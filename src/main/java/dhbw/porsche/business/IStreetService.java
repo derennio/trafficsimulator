@@ -11,6 +11,12 @@ public interface IStreetService {
      * @param vehicle The vehicle to add.
      */
     void addVehicle(IVehicle vehicle);
+    
+    /**
+     * Adds a street to the simulatioj.
+     * @param street The street to add.
+     */
+    void addStreet(Street street);
 
     /**
      * Removes a vehicle from the street.

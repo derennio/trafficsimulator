@@ -31,6 +31,8 @@ public class Simulator {
         this.streetService = new StreetService(this.fileService);
         this.lastTick = System.currentTimeMillis();
 
+        this.callPyScript();
+
         ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
         service.scheduleAtFixedRate(() -> {
             try {
@@ -58,5 +60,17 @@ public class Simulator {
         streetService.getVehicles().forEach(vehicle -> vehicle.move((float) (now - this.lastTick) / 1000));
 
         this.lastTick = System.currentTimeMillis();
+    }
+
+    /**
+     * Calls the python script to play the startup audio (critical).
+     */
+    private void callPyScript() {
+        try {
+            Runtime.getRuntime().exec("python py/startup.py");
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }

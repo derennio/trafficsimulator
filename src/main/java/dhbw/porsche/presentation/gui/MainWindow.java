@@ -74,7 +74,7 @@ public class MainWindow implements ActionListener {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-        }, 0, 50, TimeUnit.MILLISECONDS);
+        }, 0, 10, TimeUnit.MILLISECONDS);
     }
 
     JMenuBar addMenuBar(JFrame frame) {

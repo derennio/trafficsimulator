@@ -36,7 +36,7 @@ The application can be run locally, the requirements for each setup are listed b
 
 
 ### Local
-* [Java 8 SDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* [Java 17 SDK](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 * [Maven](https://maven.apache.org/download.cgi)
 * [Python](https://www.python.org/downloads/)
   

@@ -292,8 +292,12 @@ public class Car implements IVehicle {
         }
 
         var nextStreet = nextStreetOpt.get().v();
-
         float nextVelocity = nextStreet.vMax();
+
+        if (this.velocity < nextVelocity) {
+            return false;
+        }
+
         float deltaV = Math.abs(this.velocity - nextVelocity);
         float brakeTime = deltaV / this.maxBrake;
         float estTime = distToNextStreet / this.velocity;

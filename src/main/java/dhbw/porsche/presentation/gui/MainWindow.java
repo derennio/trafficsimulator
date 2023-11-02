@@ -4,12 +4,10 @@ package dhbw.porsche.presentation.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -17,12 +15,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -33,65 +32,79 @@ import dhbw.porsche.Simulator;
 import dhbw.porsche.common.Point2D;
 import dhbw.porsche.domain.IVehicle;
 import dhbw.porsche.domain.Street;
-import dhbw.porsche.file.IFileService;
+import lombok.Getter;
 
 public class MainWindow implements ActionListener {
+    @Getter
     private Simulator sim;
     private BufferedImage image;
     private JMenuItem saveLogButton;
+    private JMenuItem createCarButton;
+    private JMenuItem createStreetButton;
     private JFrame frame;
+
+    private NewCarPopup newCarPopup;
 
     public MainWindow(Simulator sim) {
         this.sim = sim;
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-                }
-                try {
-                    image = ImageIO.read(new File("src/main/java/dhbw/porsche/presentation/gui/imgs/GT3R.png"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                
-                frame = new JFrame("Traffic simulator gui");
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setLayout(new BorderLayout());
-                frame.setJMenuBar(addMenuBar(frame));
-                frame.add(new TestPane(frame));
-                frame.pack();
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {}
 
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
+        try {
+            image = ImageIO.read(new File("src/main/java/dhbw/porsche/presentation/gui/imgs/GT3R.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        frame = new JFrame("Traffic simulator gui");
+        
+        //preparation for popups
+        newCarPopup = new NewCarPopup(frame, this);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+        frame.setJMenuBar(addMenuBar(frame));
+        frame.add(new TestPane(frame));
+        frame.pack();
+
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
 
 
-                ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
-                service.scheduleAtFixedRate(() -> {
-                    try {
-                        frame.repaint();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }, 0, 50, TimeUnit.MILLISECONDS);
+        ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
+        service.scheduleAtFixedRate(() -> {
+            try {
+                frame.repaint();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-        });
+        }, 0, 50, TimeUnit.MILLISECONDS);
     }
 
     JMenuBar addMenuBar(JFrame frame) {
         JMenuBar menuBar = new JMenuBar();
 
         //Build the first menu.
-        JMenu menu = new JMenu("Log");
-        menu.getAccessibleContext().setAccessibleDescription(
-                "The only menu in this program that has menu items");
-        menuBar.add(menu);
+        JMenu logMenu = new JMenu("Log");
+        menuBar.add(logMenu);
+
+        //Build the first menu.
+        JMenu simMenu = new JMenu("Simulation");
+        menuBar.add(simMenu);
 
         //a group of JMenuItems
         saveLogButton = new JMenuItem("Save log to file");
         saveLogButton.addActionListener(this);
-        menu.add(saveLogButton);
+        logMenu.add(saveLogButton);
+
+        createCarButton = new JMenuItem("New car");
+        createCarButton.addActionListener(this);
+        simMenu.add(createCarButton);
+
+        createStreetButton = new JMenuItem("New street");
+        createStreetButton.addActionListener(this);
+        simMenu.add(createStreetButton);
         return menuBar;
     }
 
@@ -214,6 +227,11 @@ JFrame parentFrame = new JFrame();
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == this.saveLogButton) {
             saveLog();
+        } else if (ae.getSource() == this.createCarButton) {
+            newCarPopup.setVisible(true);
+            System.out.println("new car");
+        } else if (ae.getSource() == this.createStreetButton) {
+            System.out.println("new street");
         }
     }
 }

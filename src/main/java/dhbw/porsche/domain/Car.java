@@ -2,7 +2,6 @@ package dhbw.porsche.domain;
 
 import dhbw.porsche.business.IStreetService;
 import dhbw.porsche.business.controller.IController;
-import dhbw.porsche.common.Point2D;
 import dhbw.porsche.common.Tuple;
 import dhbw.porsche.file.IFileService;
 import lombok.Getter;
@@ -95,31 +94,28 @@ public class Car implements IVehicle {
     @Override
     public void updateVelocity(float deltaT) {
         float desiredDist = this.velocity * 3.6f / 2 + this.getLength();
-        var ahead = lookAhead(desiredDist);
         float error = 0, control = 0;
 
-        if (ahead.isPresent()) {
-            var v = ahead.get().t();
-            var dist = ahead.get().v();
-            error = (dist - desiredDist);
-
-            if (this.overrideActive) {
-                control = this.controlOverride;
+        if (this.overrideActive) {
+            if (this.controlOverride > 0) {
+                this.velocity += Math.min(this.controlOverride, this.maxAccel * deltaT);
             } else {
-                control = this.controller.calculate(error, deltaT);
+                this.velocity -= Math.min(-this.controlOverride, this.maxBrake * deltaT);
             }
-
-            if (control > 0) {
-                this.velocity += Math.min(control, this.maxAccel * deltaT);
-            } else {
-                this.velocity -= Math.min(-control, this.maxBrake * deltaT);
-            }
+        } else if (this.shouldBrake()) {
+            this.velocity -= this.maxBrake * deltaT;
         } else {
-            if (this.overrideActive) {
-                if (this.controlOverride > 0) {
-                    this.velocity += Math.min(this.controlOverride, this.maxAccel * deltaT);
+            var ahead = lookAhead(desiredDist);
+            if (ahead.isPresent()) {
+                var v = ahead.get().t();
+                var dist = ahead.get().v();
+                error = (dist - desiredDist);
+                control = this.controller.calculate(error, deltaT);
+
+                if (control > 0) {
+                    this.velocity += Math.min(control, this.maxAccel * deltaT);
                 } else {
-                    this.velocity -= Math.min(-this.controlOverride, this.maxBrake * deltaT);
+                    this.velocity -= Math.min(-control, this.maxBrake * deltaT);
                 }
             } else {
                 this.velocity = Math.min(
@@ -147,22 +143,14 @@ public class Car implements IVehicle {
 
         if (relPosition >= 1.0d) {
             relPosition = 0.0d;
-            Point2D end = street.end();
+            var nextStreetOpt = this.getNextStreet(street, true);
 
-            var options = this.streetService.getStreets()
-                    .stream()
-                    .filter(s -> s.start().getX() == end.getX()
-                            && s.start().getY() == end.getY())
-                    .toArray();
-
-            if (options.length == 0) {
+            if (nextStreetOpt.isEmpty()) {
                 this.streetService.removeVehicle(this);
                 return;
             }
 
-            this.streetIdx = this.streetService
-                    .getStreets()
-                    .indexOf(options[this.seed[this.seedIdx++] % options.length]);
+            this.streetIdx = nextStreetOpt.get().t();
         }
     }
 
@@ -266,21 +254,13 @@ public class Car implements IVehicle {
             }
         }
 
-        var options = this.streetService
-                .getStreets()
-                .stream()
-                .filter(s -> s.start().getX() == searchTarget.end().getX()
-                        && s.start().getY() == searchTarget.end().getY())
-                .toArray(Street[]::new);
+        var nextOpt = this.getNextStreet(searchTarget, false, nthStreet + 1);
 
-        if (options.length == 0) {
+        if (nextOpt.isEmpty()) {
             return Optional.empty();
         }
 
-        // Compute the vehicle's next street.
-        var nextIdx = this.streetService
-                .getStreets()
-                .indexOf(options[this.seed[(this.seedIdx + nthStreet + 1)] % options.length]);
+        var nextIdx = nextOpt.get().t();
 
         // Compute the total distance passed by the search algorithm.
         float _distPassed = distPassed + searchTarget.getLength();
@@ -295,5 +275,72 @@ public class Car implements IVehicle {
         }
 
         return lookAhead(nextIdx, _distPassed, nthStreet + 1, targetDist);
+    }
+
+    /**
+     * Determines whether the car should brake due to an upcoming speed limit (vMaxNew < vMax).
+     * @return Whether the car should brake.
+     */
+    private boolean shouldBrake() {
+        var currentStreet = this.streetService.getStreetById(this.streetIdx);
+        float distToNextStreet = (float) (1 - this.relPosition) * currentStreet.getLength();
+
+        var nextStreetOpt = this.getNextStreet(currentStreet, false);
+
+        if (nextStreetOpt.isEmpty()) {
+            return false;
+        }
+
+        var nextStreet = nextStreetOpt.get().v();
+
+        float nextVelocity = nextStreet.vMax();
+        float deltaV = Math.abs(this.velocity - nextVelocity);
+        float brakeTime = deltaV / this.maxBrake;
+        float estTime = distToNextStreet / this.velocity;
+
+        return estTime < brakeTime;
+    }
+
+    /**
+     * Returns the next street.
+     * @param current The current street.
+     * @param increaseSeed Whether to increase the seed index.
+     * @return The next street.
+     */
+    private Optional<Tuple<Integer, Street>> getNextStreet(Street current, boolean increaseSeed) {
+        return getNextStreet(current, increaseSeed, 1);
+    }
+
+    /**
+     * Returns the next street.
+     * @param current The current street.
+     * @param increaseSpeed Whether to increase the seed index.
+     * @param nthStreet The number of streets to skip.
+     * @return The next street.
+     */
+    private Optional<Tuple<Integer, Street>> getNextStreet(Street current, boolean increaseSpeed, int nthStreet) {
+        var options = this.streetService.getStreets()
+                .stream()
+                .filter(s -> s.start().getX() == current.end().getX()
+                        && s.start().getY() == current.end().getY())
+                .toArray();
+
+        if (options.length == 0) {
+            return Optional.empty();
+        }
+
+        var nextSeed = this.seedIdx + nthStreet;
+
+        // Determine next index based on the seed.
+        var nextId = this.streetService
+                .getStreets()
+                .indexOf(options[this.seed[nextSeed] % options.length]);
+        var nextStreet = this.streetService.getStreetById(nextId);
+
+        if (increaseSpeed) {
+            this.seedIdx++;
+        }
+
+        return Optional.of(new Tuple<>(nextId, nextStreet));
     }
 }

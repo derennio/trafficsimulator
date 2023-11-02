@@ -72,7 +72,7 @@ public class Car implements IVehicle {
     /**
      * The seed for the random number generator.
      */
-    private final int[] seed;
+    private int[] seed = generateSeed();
 
     /**
      * The index of the current seed.
@@ -193,6 +193,30 @@ public class Car implements IVehicle {
         this.overrideActive = active;
         this.controlOverride = control;
         return this;
+    }
+
+    /**
+     * Overrides controller output in order to offer simulation variations.
+     *
+     * @param active Whether the override is active.
+     * @return The vehicle.
+     */
+    @Override
+    public IVehicle overrideController(boolean active) {
+        this.overrideActive = active;
+        return this;
+    }
+
+    /**
+     * Generates a seed for the car.
+     * @return The seed.
+     */
+    private static int[] generateSeed() {
+        int[] seed = new int[10];
+        for (int i = 0; i < seed.length; i++) {
+            seed[i] = (int)(Math.random() * 10);
+        }
+        return seed;
     }
 
     private Optional<Tuple<IVehicle, Float>> lookAhead(float targetDist) {

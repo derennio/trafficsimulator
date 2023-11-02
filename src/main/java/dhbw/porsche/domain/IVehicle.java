@@ -50,4 +50,11 @@ public interface IVehicle {
      * @return The vehicle.
      */
     IVehicle overrideController(boolean active, float control);
+
+    /**
+     * Overrides controller output in order to offer simulation variations.
+     * @param active Whether the override is active.
+     * @return The vehicle.
+     */
+    IVehicle overrideController(boolean active);
 }

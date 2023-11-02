@@ -32,8 +32,8 @@ public class StreetService implements IStreetService {
                 new Street(13f, new Point2D(2000, 1000), new Point2D(2000, 0))
         };
         this.vehicles = new ArrayList<>();
-        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63, generateSeed()).overrideController(true, -10f));
-        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63, generateSeed()).translocate(0.03, 1));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.03, 1));
     }
 
     /**
@@ -92,17 +92,5 @@ public class StreetService implements IStreetService {
     @Override
     public List<IVehicle> getVehicles() {
         return this.vehicles;
-    }
-
-    /**
-     * Generates a seed for the car.
-     * @return The seed.
-     */
-    private int[] generateSeed() {
-        int[] seed = new int[10];
-        for (int i = 0; i < seed.length; i++) {
-            seed[i] = (int)(Math.random() * 10);
-        }
-        return seed;
     }
 }

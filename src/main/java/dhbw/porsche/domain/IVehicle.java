@@ -39,6 +39,15 @@ public interface IVehicle {
      * Sets the car's current relative position on the street.
      * @param relPosition The car's current relative position on the street.
      * @param streetIdx The index of the street.
+     * @return The vehicle.
      */
     IVehicle translocate(double relPosition, int streetIdx);
+
+    /**
+     * Overrides controller output in order to offer simulation variations.
+     * @param active Whether the override is active.
+     * @param control The controller output to override.
+     * @return The vehicle.
+     */
+    IVehicle overrideController(boolean active, float control);
 }

@@ -32,7 +32,7 @@ public class StreetService implements IStreetService {
                 new Street(13f, new Point2D(2000, 1000), new Point2D(2000, 0))
         };
         this.vehicles = new ArrayList<>();
-        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63, generateSeed()));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63, generateSeed()).overrideController(true, -10f));
         this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63, generateSeed()).translocate(0.03, 1));
     }
 

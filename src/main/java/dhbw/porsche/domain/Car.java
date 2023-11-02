@@ -80,6 +80,16 @@ public class Car implements IVehicle {
     private int seedIdx;
 
     /**
+     * Whether the controller is currently being overridden.
+     */
+    private boolean overrideActive;
+
+    /**
+     * The controller output to override.
+     */
+    private float controlOverride;
+
+    /**
      * Updates the velocity of the vehicle based on the controller's instruction.
      */
     @Override
@@ -92,14 +102,28 @@ public class Car implements IVehicle {
             var v = ahead.get().t();
             var dist = ahead.get().v();
             error = (dist - desiredDist);
-            control = this.controller.calculate(error, deltaT);
+
+            if (this.overrideActive) {
+                control = this.controlOverride;
+            } else {
+                control = this.controller.calculate(error, deltaT);
+            }
+
             if (control > 0) {
                 this.velocity += Math.min(control, this.maxAccel * deltaT);
             } else {
                 this.velocity -= Math.min(-control, this.maxBrake * deltaT);
             }
         } else {
-            this.velocity = Math.min(this.velocity + this.maxAccel * deltaT, Math.min(this.streetService.getStreetById(streetIdx).vMax(), this.maxVelocity));
+            if (this.overrideActive) {
+                if (this.controlOverride > 0) {
+                    this.velocity += Math.min(this.controlOverride, this.maxAccel * deltaT);
+                } else {
+                    this.velocity -= Math.min(-this.controlOverride, this.maxBrake * deltaT);
+                }
+            } else {
+                this.velocity = Math.min(this.velocity + this.maxAccel * deltaT, Math.min(this.streetService.getStreetById(streetIdx).vMax(), this.maxVelocity));
+            }
         }
 
         DataPoint dp = new DataPoint(this.getId(), System.currentTimeMillis(), this.velocity, error, control, this.streetService.getStreetById(streetIdx).vMax(), (float)this.relPosition, 187, this.streetIdx);
@@ -155,6 +179,19 @@ public class Car implements IVehicle {
     public IVehicle translocate(double relPosition, int streetIdx) {
         this.relPosition = relPosition;
         this.streetIdx = streetIdx;
+        return this;
+    }
+
+    /**
+     * Overrides controller output in order to offer simulation variations.
+     * @param active Whether the override is active.
+     * @param control The controller output to override.
+     * @return The vehicle.
+     */
+    @Override
+    public IVehicle overrideController(boolean active, float control) {
+        this.overrideActive = active;
+        this.controlOverride = control;
         return this;
     }
 

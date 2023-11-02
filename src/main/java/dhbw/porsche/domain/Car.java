@@ -122,7 +122,12 @@ public class Car implements IVehicle {
                     this.velocity -= Math.min(-this.controlOverride, this.maxBrake * deltaT);
                 }
             } else {
-                this.velocity = Math.min(this.velocity + this.maxAccel * deltaT, Math.min(this.streetService.getStreetById(streetIdx).vMax(), this.maxVelocity));
+                this.velocity = Math.min(
+                        this.velocity + this.maxAccel * deltaT,
+                        Math.min(this.streetService.getStreetById(streetIdx).vMax(),
+                                this.maxVelocity
+                        )
+                );
             }
         }
 
@@ -146,8 +151,8 @@ public class Car implements IVehicle {
 
             var options = this.streetService.getStreets()
                     .stream()
-                    .filter(
-                            s -> s.start().getX() == end.getX() && s.start().getY() == end.getY())
+                    .filter(s -> s.start().getX() == end.getX()
+                            && s.start().getY() == end.getY())
                     .toArray();
 
             if (options.length == 0) {
@@ -155,7 +160,9 @@ public class Car implements IVehicle {
                 return;
             }
 
-            this.streetIdx = this.streetService.getStreets().indexOf(options[this.seed[this.seedIdx++] % options.length]);
+            this.streetIdx = this.streetService
+                    .getStreets()
+                    .indexOf(options[this.seed[this.seedIdx++] % options.length]);
         }
     }
 
@@ -234,33 +241,52 @@ public class Car implements IVehicle {
     private Optional<Tuple<IVehicle, Float>> lookAhead(int streetIdx, float distPassed, int nthStreet, float targetDist) {
         var searchTarget = this.streetService.getStreetById(this.streetIdx);
 
-        var vehiclesOnStreet = this.streetService.getVehicles().stream().filter(v -> v.getStreetIdx() == streetIdx).toArray(IVehicle[]::new);
-        for (IVehicle v :
-             vehiclesOnStreet) {
+        // Retrieve all vehicles on the current street.
+        var vehiclesOnStreet = this.streetService
+                .getVehicles()
+                .stream()
+                .filter(v -> v.getStreetIdx() == streetIdx)
+                .toArray(IVehicle[]::new);
+
+        for (IVehicle v : vehiclesOnStreet) {
             if (nthStreet == 0) {
                 if (this.getRelPosition() < v.getRelPosition()) {
+                    // Distance to the next vehicle on the same street.
                     double streetDist = (v.getRelPosition() - this.getRelPosition()) * searchTarget.getLength();
                     if (streetDist < targetDist) {
-                        return Optional.of(new Tuple<>(v, (float)streetDist));
+                        return Optional.of(new Tuple<>(v, (float) streetDist));
                     }
                 }
             } else {
+                // Distance to the next vehicle on another street.
                 double streetDist = v.getRelPosition() * searchTarget.getLength() + distPassed;
                 if (streetDist < targetDist) {
-                    return Optional.of(new Tuple<>(v, (float)streetDist));
+                    return Optional.of(new Tuple<>(v, (float) streetDist));
                 }
             }
         }
 
-        var options = this.streetService.getStreets().stream().filter(s -> s.start().getX() == searchTarget.end().getX() && s.start().getY() == searchTarget.end().getY()).toArray(Street[]::new);
+        var options = this.streetService
+                .getStreets()
+                .stream()
+                .filter(s -> s.start().getX() == searchTarget.end().getX()
+                        && s.start().getY() == searchTarget.end().getY())
+                .toArray(Street[]::new);
 
         if (options.length == 0) {
             return Optional.empty();
         }
 
-        var nextIdx = this.streetService.getStreets().indexOf(options[this.seed[(this.seedIdx + nthStreet + 1)] % options.length]);
+        // Compute the vehicle's next street.
+        var nextIdx = this.streetService
+                .getStreets()
+                .indexOf(options[this.seed[(this.seedIdx + nthStreet + 1)] % options.length]);
+
+        // Compute the total distance passed by the search algorithm.
         float _distPassed = distPassed + searchTarget.getLength();
         if (nthStreet == 0) {
+            // In case the current street is the first street being searched,
+            // the distance passed is relative to the vehicle's position on the street.
             _distPassed = (float) (1 - this.relPosition) * searchTarget.getLength();
         }
 

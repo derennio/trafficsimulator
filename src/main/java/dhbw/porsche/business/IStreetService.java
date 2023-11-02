@@ -24,9 +24,22 @@ public interface IStreetService {
      * @return The street with the given id.
      */
     Street getStreetById(int id);
+
+    /**
+     * Returns the amount of streets.
+     * @return The amount of streets.
+     */
     int getStreetAmount();
 
+    /**
+     * Returns the list of streets.
+     * @return The list of streets.
+     */
     List<Street> getStreets();
 
+    /**
+     * Returns the list of vehicles.
+     * @return The list of vehicles.
+     */
     List<IVehicle> getVehicles();
 }

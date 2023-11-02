@@ -1,10 +1,9 @@
 package dhbw.porsche.domain;
 
 import dhbw.porsche.business.IStreetService;
-import dhbw.porsche.business.controller.PIController;
+import dhbw.porsche.business.controller.IController;
 import dhbw.porsche.common.Point2D;
 import dhbw.porsche.common.Tuple;
-import dhbw.porsche.file.FileService;
 import dhbw.porsche.file.IFileService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +29,10 @@ public class Car implements IVehicle {
      */
     private final IFileService fileService;
 
-    private PIController controller = new PIController(0.5f, 0.1f);
-    
     /**
-     *  the car's current velocity.
+     * The car's controller.
      */
-    private float velocity;
+    private final IController controller;
 
     /**
      * The car's maximum positive acceleration.
@@ -56,6 +53,11 @@ public class Car implements IVehicle {
      * The car's length.
      */
     private final int length;
+    
+    /**
+     *  the car's current velocity.
+     */
+    private float velocity;
 
     /**
      * Index of the current street.
@@ -67,24 +69,15 @@ public class Car implements IVehicle {
      */
     private double relPosition = 0.0d;
 
+    /**
+     * The seed for the random number generator.
+     */
     private final int[] seed;
 
+    /**
+     * The index of the current seed.
+     */
     private int seedIdx;
-
-    public Car(IStreetService streetService, IFileService fileService, float maxAccel, float maxBrake, float maxVelocity, int length, int[] seed, double relAhead, int streetIdx) {
-        this.streetService = streetService;
-        this.fileService = fileService;
-        this.maxAccel = maxAccel;
-        this.maxBrake = maxBrake;
-        this.maxVelocity = maxVelocity;
-        this.length = length;
-        this.seed = seed;
-        this.seedIdx = 0;
-        this.controller = new PIController(0.5f, 0.1f);
-        this.relPosition = relAhead;
-        this.streetIdx = streetIdx;
-    }
-
 
     /**
      * Updates the velocity of the vehicle based on the controller's instruction.
@@ -98,7 +91,7 @@ public class Car implements IVehicle {
         if (ahead.isPresent()) {
             var v = ahead.get().t();
             var dist = ahead.get().v();
-            error = (float)(dist - desiredDist);
+            error = (dist - desiredDist);
             control = this.controller.calculate(error, deltaT);
             if (control > 0) {
                 this.velocity += Math.min(control, this.maxAccel * deltaT);
@@ -152,10 +145,31 @@ public class Car implements IVehicle {
         this.streetIdx = streetIdx;
     }
 
+    /**
+     * Sets the car's current relative position on the street.
+     *
+     * @param relPosition The car's current relative position on the street.
+     * @param streetIdx   The index of the street.
+     */
+    @Override
+    public IVehicle translocate(double relPosition, int streetIdx) {
+        this.relPosition = relPosition;
+        this.streetIdx = streetIdx;
+        return this;
+    }
+
     private Optional<Tuple<IVehicle, Float>> lookAhead(float targetDist) {
         return lookAhead(this.streetIdx, 0, 0, targetDist);
     }
 
+    /**
+     * Looks ahead on the street to find the next vehicle.
+     * @param streetIdx The index of the current street.
+     * @param distPassed The distance passed while searching for the next vehicle.
+     * @param nthStreet The number of streets passed while searching for the next vehicle.
+     * @param targetDist The desired distance to maintain between vehicles.
+     * @return The next vehicle and the distance to it.
+     */
     private Optional<Tuple<IVehicle, Float>> lookAhead(int streetIdx, float distPassed, int nthStreet, float targetDist) {
         var searchTarget = this.streetService.getStreetById(this.streetIdx);
 
@@ -186,7 +200,7 @@ public class Car implements IVehicle {
         var nextIdx = this.streetService.getStreets().indexOf(options[this.seed[(this.seedIdx + nthStreet + 1)] % options.length]);
         float _distPassed = distPassed + searchTarget.getLength();
         if (nthStreet == 0) {
-            _distPassed = (float)((1 - this.relPosition) * searchTarget.getLength());
+            _distPassed = (float) (1 - this.relPosition) * searchTarget.getLength();
         }
 
         if (_distPassed >= targetDist) {

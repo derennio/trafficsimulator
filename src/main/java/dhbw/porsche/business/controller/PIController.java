@@ -3,15 +3,32 @@ package dhbw.porsche.business.controller;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class PIController {
+public class PIController implements IController {
+    /**
+     * Proportional value.
+     */
     private final float pVal;
+
+    /**
+     * Integral value.
+     */
     private final float iVal;
+
+    /**
+     * The last input value.
+     */
     private float lastInput;
 
-    public float calculate(float errVal, float dt) {
-        float integral = lastInput + errVal * dt;
+    /**
+     * Calculates the output of the controller.
+     * @param error The current error (delta dist)
+     * @param dt The time difference between the last calculation and the current one
+     * @return The output of the controller
+     */
+    public float calculate(float error, float dt) {
+        float integral = lastInput + error * dt;
         lastInput = integral;
-        return pVal * errVal + iVal * integral;
+        return pVal * error + iVal * integral;
     }
 
 }

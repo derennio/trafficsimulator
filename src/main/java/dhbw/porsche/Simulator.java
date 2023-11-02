@@ -11,8 +11,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Simulator {
+    /**
+     * The street service.
+     */
     public IStreetService streetService;
+
+    /**
+     * The file service.
+     */
     public IFileService fileService;
+
+    /**
+     * Time of last tick.
+     */
     private long lastTick;
 
     public Simulator() {
@@ -38,7 +49,10 @@ public class Simulator {
         }, "Shutdown-thread"));
     }
 
-    public void tick() {
+    /**
+     * Performs ticking for simulation.
+     */
+    private void tick() {
         long now = System.currentTimeMillis();
 
         streetService.getVehicles().forEach(vehicle -> vehicle.move((float) (now - this.lastTick) / 1000));

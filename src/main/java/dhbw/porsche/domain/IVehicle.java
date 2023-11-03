@@ -36,6 +36,12 @@ public interface IVehicle {
     double getRelPosition();
 
     /**
+     * Returns the car's current velocity.
+     * @return The car's current velocity.
+     */
+    float getVelocity();
+
+    /**
      * Sets the car's current relative position on the street.
      * @param relPosition The car's current relative position on the street.
      * @param streetIdx The index of the street.

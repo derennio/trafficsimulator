@@ -10,12 +10,14 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -25,8 +27,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.MouseInputListener;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 
 import dhbw.porsche.Simulator;
 import dhbw.porsche.common.Point2D;
@@ -60,8 +65,10 @@ public class MainWindow implements ActionListener {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setJMenuBar(addMenuBar(frame));
-        frame.add(new TestPane(frame));
+        TestPane testPane = new TestPane(frame, this);
+        frame.add(testPane);
         frame.pack();
+        frame.addMouseListener(testPane);
 
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
@@ -103,14 +110,19 @@ public class MainWindow implements ActionListener {
         return menuBar;
     }
 
-    public class TestPane extends JPanel {
+    public class TestPane extends JPanel implements MouseInputListener {
         private int xOffset = 1000;
         private int yOffset = 1000;
         private double scale = .2;
         private JFrame parentFrame;
+        private MainWindow mw;
 
-        TestPane(JFrame pf) {
+        TestPane(JFrame pf, MainWindow mw) {
             parentFrame = pf;
+            this.mw = mw;
+            this.setLayout(new BorderLayout());
+            JLabel as = new JLabel("test");
+            this.add(as);
         }
 
         @Override
@@ -198,6 +210,36 @@ public class MainWindow implements ActionListener {
         void drawImage(Graphics g, BufferedImage img, float x, float y) {
             g.drawImage(img, (int)((x + xOffset) * scale), (int)((y + yOffset) * scale), null);
         }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            List<Float> distances = new ArrayList<>();
+            for (IVehicle v : sim.streetService.getVehicles()) {
+                Street s = sim.streetService.getStreetById(v.getStreetIdx());
+                Point2D pos = new Point2D((float)(s.start().getX() + (s.end().getX() - s.start().getX()) * v.getRelPosition()), (float)(s.start().getY() + (s.end().getY() - s.start().getY()) * v.getRelPosition()));
+                Point2D posOnScreen = new Point2D((float)((pos.getX() + xOffset) * scale), (float)((pos.getY() + yOffset) * scale + parentFrame.getJMenuBar().getHeight()));
+                distances.add(posOnScreen.distanceTo(new Point2D(e.getX(), e.getY())));
+            }
+            int index = distances.indexOf(Collections.min(distances));
+
+            if (distances.get(index) < 30) {
+                CarDetailPopup carDetailPopup = new CarDetailPopup(frame, mw, index);
+                carDetailPopup.setVisible(true);
+            }
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent arg0) {}
+        @Override
+        public void mouseExited(MouseEvent arg0) {}
+        @Override
+        public void mousePressed(MouseEvent arg0) {}
+        @Override
+        public void mouseReleased(MouseEvent arg0) {}
+        @Override
+        public void mouseDragged(MouseEvent arg0) {}
+        @Override
+        public void mouseMoved(MouseEvent arg0) {}
     }
 
     void saveLog() {

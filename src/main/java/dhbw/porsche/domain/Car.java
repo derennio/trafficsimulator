@@ -56,6 +56,7 @@ public class Car implements IVehicle {
     /**
      *  the car's current velocity.
      */
+    @Getter
     private float velocity;
 
     /**

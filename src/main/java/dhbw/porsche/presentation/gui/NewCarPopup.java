@@ -1,12 +1,8 @@
 package dhbw.porsche.presentation.gui;
 
-import java.awt.Color;
-
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -15,10 +11,6 @@ import dhbw.porsche.business.controller.PIController;
 import dhbw.porsche.domain.Car;
 import dhbw.porsche.domain.IVehicle;
 
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 

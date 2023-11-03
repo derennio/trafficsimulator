@@ -121,8 +121,6 @@ public class MainWindow implements ActionListener {
             parentFrame = pf;
             this.mw = mw;
             this.setLayout(new BorderLayout());
-            JLabel as = new JLabel("test");
-            this.add(as);
         }
 
         @Override

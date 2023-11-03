@@ -32,8 +32,15 @@ public class StreetService implements IStreetService {
         this.streets.add(new Street(13f, new Point2D(2000, 1000), new Point2D(2000, 0)));
 
         this.vehicles = new ArrayList<>();
-        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63));
-        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.03, 1));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.1, 0));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.2, 0));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.3, 0));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.4, 0));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.5, 0));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.6, 0));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.7, 0));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.8, 0));
+        this.vehicles.add(new Car(this, fileService, new PIController(0.5f, 0.1f), 8.68f, 5, 100, 63).translocate(0.9, 0));
     }
 
     /**

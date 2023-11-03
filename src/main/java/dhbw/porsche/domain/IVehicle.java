@@ -40,6 +40,7 @@ public interface IVehicle {
      * @return The car's current velocity.
      */
     float getVelocity();
+    float getCurrentAccel();
 
     /**
      * Sets the car's current relative position on the street.

@@ -69,6 +69,9 @@ public class Car implements IVehicle {
      */
     private double relPosition = 0.0d;
 
+    @Getter
+    private float currentAccel;
+
     /**
      * The seed for the random number generator.
      */
@@ -100,11 +103,14 @@ public class Car implements IVehicle {
         if (this.overrideActive) {
             if (this.controlOverride > 0) {
                 this.velocity += Math.min(this.controlOverride, this.maxAccel * deltaT);
+                this.currentAccel = Math.min(this.controlOverride, this.maxAccel * deltaT) / deltaT;
             } else {
                 this.velocity -= Math.min(-this.controlOverride, this.maxBrake * deltaT);
+                this.currentAccel = Math.min(this.controlOverride, -this.maxBrake * deltaT) / deltaT;
             }
         } else if (this.shouldBrake()) {
             this.velocity -= this.maxBrake * deltaT;
+            this.currentAccel = -this.maxBrake;
         } else {
             var ahead = lookAhead(desiredDist);
             if (ahead.isPresent()) {
@@ -114,8 +120,10 @@ public class Car implements IVehicle {
 
                 if (control > 0) {
                     this.velocity += Math.min(control, this.maxAccel * deltaT);
+                    this.currentAccel = Math.min(control, this.maxAccel * deltaT) / deltaT;
                 } else {
                     this.velocity -= Math.min(-control, this.maxBrake * deltaT);
+                    this.currentAccel = -Math.min(-control, this.maxBrake * deltaT) / deltaT;
                 }
             } else {
                 this.velocity = Math.min(
@@ -124,6 +132,9 @@ public class Car implements IVehicle {
                                 this.maxVelocity
                         )
                 );
+                if (Math.min(this.streetService.getStreetById(streetIdx).vMax(), this.maxVelocity) < this.velocity + this.maxAccel * deltaT) {
+                    this.currentAccel = this.maxAccel;
+                }
             }
         }
 
@@ -333,7 +344,7 @@ public class Car implements IVehicle {
             return Optional.empty();
         }
 
-        var nextSeed = this.seedIdx + nthStreet;
+        var nextSeed = (this.seedIdx + nthStreet) % this.seed.length;
 
         // Determine next index based on the seed.
         var nextId = this.streetService
@@ -342,7 +353,7 @@ public class Car implements IVehicle {
         var nextStreet = this.streetService.getStreetById(nextId);
 
         if (increaseSpeed) {
-            this.seedIdx++;
+            this.seedIdx = (this.seedIdx + 1) % this.seed.length;
         }
 
         return Optional.of(new Tuple<>(nextId, nextStreet));

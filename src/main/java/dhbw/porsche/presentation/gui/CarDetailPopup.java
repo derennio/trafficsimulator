@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class CarDetailPopup extends JDialog {
     private JLabel velocityText = new JLabel("");
+    private JLabel accelText = new JLabel("");
     private JCheckBox brakeBox = new JCheckBox();
     private MainWindow mw;
     private int carIdx;
@@ -31,7 +32,7 @@ public class CarDetailPopup extends JDialog {
     
         this.setBounds(500, 300, 400, 400);
 
-        Object[] array = { velocityText, new JLabel("Set tik to brake: "), brakeBox};
+        Object[] array = { new JLabel("Car index: " + carIdx), velocityText, accelText, new JLabel("Set tick to brake: "), brakeBox};
 
         // Create an array specifying the number of dialog buttons
         // and their text.
@@ -68,6 +69,7 @@ public class CarDetailPopup extends JDialog {
     public void repaint() {
         super.repaint();
         velocityText.setText("Current speed: " + mw.getSim().streetService.getVehicles().get(carIdx).getVelocity() + " m/s");
+        accelText.setText("Current acceleration: " + mw.getSim().streetService.getVehicles().get(carIdx).getCurrentAccel() + " m/s^2");
 
         if (brakeBox.isSelected()) {
             mw.getSim().streetService.getVehicles().get(carIdx).overrideController(true, -10);
